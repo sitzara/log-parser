@@ -1,11 +1,6 @@
-interface ParseResult {
-  timestamp: number | null;
-  loglevel: string | null;
-  transactionId: string | null;
-  err: string | null;
-}
+import { LogLevel, ParseResult, Parser } from './interfaces';
 
-export default class LineParser {
+export default class LineParser implements Parser {
   private regexp = /^([A-Za-z0-9-:\.]+)\s-\s(info|debug|error|warn)\s-\s(.+)?$/i;
 
   public parse(str: string): ParseResult  {
@@ -17,7 +12,6 @@ export default class LineParser {
     };
 
     const result = this.regexp.exec(str);
-    // console.log('result', result);
     if (!result) return defaultResult;
 
     const date = result[1];
@@ -40,5 +34,9 @@ export default class LineParser {
     } catch (error) {
       return { transactionId: null, err: null };
     }
+  }
+
+  public filter(data: ParseResult): boolean {
+    return data.loglevel === LogLevel.ERROR;
   }
 }

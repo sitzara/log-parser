@@ -1,39 +1,19 @@
-import fs from 'fs';
-import readline from 'readline';
-import Writer from './Writer';
+import LineReader from './LineReader';
+import JsonTransformer from './JsonTransformer';
+import JsonWriter from './JsonWriter';
 
 export default class Parser {
-  input: string;
-  output: string;
-  rl: readline.Interface;
+  reader: LineReader;
+  transformer: JsonTransformer;
+  writer: JsonWriter;
 
   public constructor(input: string, output: string) {
-    this.input = input;
-    this.output = output;
-
-    if (!fs.existsSync(input)) {
-      throw new Error('Input file does not exist');
-    }
-
-    this.rl = readline.createInterface({
-      input: fs.createReadStream(this.input),
-      terminal: false,
-      crlfDelay: Infinity
-    });
+    this.reader = new LineReader(input);
+    this.transformer = new JsonTransformer();
+    this.writer = new JsonWriter(output);
   }
 
   public run() {
-    const ws = fs.createWriteStream(this.output);
-    const writer = new Writer(ws);
-
-    this.rl.on('line', (line) => {
-      console.log(line);
-      writer.add(line);
-    });
-
-    this.rl.on('close', () => {
-      console.log('readline closed');
-      writer.end();
-    });
+    this.reader.transformer(this.transformer).pipe(this.writer);
   }
 }
