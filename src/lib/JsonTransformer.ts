@@ -10,8 +10,9 @@ export default class JsonTransformer implements Transformer {
 
   public transform(writer: Writer, line: string) {
     const parsedLine = this.lineParser.parse(line);
+    const formattedLine = this.lineParser.format(parsedLine);
 
-    if (this.lineParser.filter(parsedLine)) {
+    if (this.lineParser.filter(formattedLine)) {
       const jsonString = JSON.stringify(parsedLine);
       writer.write(jsonString);
     }

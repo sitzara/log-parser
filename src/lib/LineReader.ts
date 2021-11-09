@@ -3,7 +3,6 @@ import readline from 'readline';
 import { Reader, Writer, Transformer } from './interfaces';
 
 export default class LineReader implements Reader {
-  private input: string;
   private rl: readline.Interface;
   private _transformer?: Transformer;
 
@@ -12,10 +11,8 @@ export default class LineReader implements Reader {
       throw new Error('Input file does not exist');
     }
 
-    this.input = input;
-
     this.rl = readline.createInterface({
-      input: fs.createReadStream(this.input),
+      input: fs.createReadStream(input),
       terminal: false,
       crlfDelay: Infinity
     });

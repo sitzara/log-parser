@@ -1,42 +1,44 @@
-import { LogLevel, ParseResult, Parser } from './interfaces';
+import { Parser, LogLevel, ParsedLine, ParsedLineData, FormattedLine } from './interfaces';
 
 export default class LineParser implements Parser {
   private regexp = /^([A-Za-z0-9-:\.]+)\s-\s(info|debug|error|warn)\s-\s(.+)?$/i;
 
-  public parse(str: string): ParseResult  {
-    const defaultResult = {
-      timestamp: null,
-      loglevel: null,
-      transactionId: null,
-      err: null,
-    };
-
+  public parse(str: string): ParsedLine  {
     const result = this.regexp.exec(str);
-    if (!result) return defaultResult;
+    if (!result) return {};
 
     const date = result[1];
     const loglevel = result[2];
     const data = result[3];
-    const { transactionId, err } = this.parseData(data);
+    const parsedData = this._parseData(data);
 
     return {
-      timestamp: new Date(date).valueOf() || null,
-      loglevel: loglevel || null,
-      transactionId,
-      err,
+      date,
+      loglevel,
+      data: parsedData,
     }
   }
 
-  private parseData(data: string): Pick<ParseResult, 'transactionId' | 'err'> {
+  private _parseData(data: string): ParsedLineData {
     try {
-      const { transactionId = null, err = null } = JSON.parse(data);
-      return { transactionId, err };
+      const parsedData: ParsedLineData = JSON.parse(data);
+      return parsedData;
     } catch (error) {
-      return { transactionId: null, err: null };
+      return {};
     }
   }
 
-  public filter(data: ParseResult): boolean {
-    return data.loglevel === LogLevel.ERROR;
+  public format(line: ParsedLine): FormattedLine {
+    const { date, loglevel, data } = line;
+    return {
+      timestamp: new Date(date || '').valueOf() || null,
+      loglevel: loglevel as LogLevel || '',
+      transactionId: data?.transactionId || '',
+      err: data?.err || '',
+    }
+  }
+
+  public filter(line: FormattedLine): boolean {
+    return line.loglevel === LogLevel.ERROR;
   }
 }

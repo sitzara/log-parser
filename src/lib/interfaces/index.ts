@@ -3,8 +3,17 @@ export interface Reader {
   transformer(transformer: Transformer): void;
 }
 
+export interface Transformer {
+  transform(writer: Writer, line: string): void;
+}
+
+export interface Writer {
+  write(data: string): void;
+  end(): void;
+}
+
 export interface Parser {
-  parse(line: string): ParseResult;
+  parse(line: string): ParsedLine;
 }
 
 export enum LogLevel {
@@ -14,22 +23,21 @@ export enum LogLevel {
   ERROR = 'error',
 }
 
-export interface ParseResult {
+export interface ParsedLineData {
+  [x: string]: string | number | undefined;
+  transactionId?: string;
+  err?: string;
+}
+
+export interface ParsedLine {
+  date?: string;
+  loglevel?: string;
+  data?: ParsedLineData;
+}
+
+export interface FormattedLine {
   timestamp: number | null;
-  loglevel: string | null;
-  transactionId: string | null;
-  err: LogLevel | null;
-}
-
-// export interface Filter {
-
-// }
-
-export interface Transformer {
-  transform(writer: Writer, line: string): void;
-}
-
-export interface Writer {
-  write(data: string): void;
-  end(): void;
+  loglevel: LogLevel;
+  transactionId: string;
+  err: string;
 }
