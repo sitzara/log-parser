@@ -1,10 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
-import { Reader, Writer, Transformer } from './interfaces';
+import { Reader, Transformer } from './interfaces';
 
 export default class LineReader implements Reader {
   private rl: readline.Interface;
-  private _transformer?: Transformer;
 
   constructor(input: string) {
     if (!fs.existsSync(input)) {
@@ -18,24 +17,15 @@ export default class LineReader implements Reader {
     });
   }
 
-  public pipe(writer: Writer): Writer {
+  public pipe(transformer: Transformer): this {
     this.rl.on('line', (line) => {
-      if (this._transformer) {
-        this._transformer.transform(writer, line);
-        return;
-      }
-      writer.write(line);
+      transformer.transform(line);
     });
 
     this.rl.on('close', () => {
-      writer.end();
+      transformer.end();
     });
 
-    return writer;
-  }
-
-  public transformer(transformer: Transformer): this {
-    this._transformer = transformer;
     return this;
   }
 }

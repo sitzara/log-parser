@@ -1,10 +1,11 @@
 export interface Reader {
-  pipe(writer: Writer): void;
-  transformer(transformer: Transformer): void;
+  pipe(transformer: Transformer): this;
 }
 
 export interface Transformer {
-  transform(writer: Writer, line: string): void;
+  pipe(writer: Writer): this;
+  transform(data: string): void;
+  end(): void;
 }
 
 export interface Writer {
@@ -12,8 +13,9 @@ export interface Writer {
   end(): void;
 }
 
-export interface Parser {
-  parse(line: string): ParsedLine;
+export interface Line<T> {
+  format(): T;
+  toString(): string;
 }
 
 export enum LogLevel {

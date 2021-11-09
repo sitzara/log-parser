@@ -1,19 +1,19 @@
 import LineReader from './LineReader';
 import JsonTransformer from './JsonTransformer';
-import JsonWriter from './JsonWriter';
+import LineWriter from './LineWriter';
 
 export default class Parser {
   reader: LineReader;
   transformer: JsonTransformer;
-  writer: JsonWriter;
+  writer: LineWriter;
 
   public constructor(input: string, output: string) {
     this.reader = new LineReader(input);
     this.transformer = new JsonTransformer();
-    this.writer = new JsonWriter(output);
+    this.writer = new LineWriter(output);
   }
 
   public run() {
-    this.reader.transformer(this.transformer).pipe(this.writer);
+    this.reader.pipe(this.transformer.pipe(this.writer));
   }
 }

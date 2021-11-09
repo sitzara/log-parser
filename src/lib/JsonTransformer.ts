@@ -1,20 +1,58 @@
-import { Transformer, Writer } from './interfaces';
-import LineParser from './LineParser';
+import { EOL } from 'os';
+import { Transformer, Writer, LogLevel, FormattedLine } from './interfaces';
+import LogLine from './LogLine';
 
 export default class JsonTransformer implements Transformer {
-  private lineParser: LineParser;
+  private writer?: Writer;
+  private linesWrittenn = 0;
 
-  constructor() {
-    this.lineParser = new LineParser();
+  public pipe(writer: Writer): this {
+    this.writer = writer;
+    return this;
   }
 
-  public transform(writer: Writer, line: string) {
-    const parsedLine = this.lineParser.parse(line);
-    const formattedLine = this.lineParser.format(parsedLine);
-
-    if (this.lineParser.filter(formattedLine)) {
-      const jsonString = JSON.stringify(parsedLine);
-      writer.write(jsonString);
+  public transform(str: string): void {
+    if (!this.writer) {
+      return;
     }
+
+    const line = new LogLine(str);
+    const data = line.format();
+
+    if (!this._filter(data)) {
+      return;
+    }
+
+    const jsonString = this._toString(data);
+    const prefix = this._getLinePrefix();
+    this.writer.write(`${prefix}\t${jsonString}`);
+
+    this.linesWrittenn++;
+  }
+
+  public end() {
+    if (!this.writer) {
+      return;
+    }
+
+    if (this.linesWrittenn === 0) {
+      this.writer.end();
+      return;
+    }
+
+    this.writer.write(`${EOL}]${EOL}`);
+    this.writer.end();
+  }
+
+  private _filter(data: FormattedLine): boolean {
+    return data.loglevel === LogLevel.ERROR;
+  }
+
+  private _toString(data: FormattedLine): string {
+    return JSON.stringify(data);
+  }
+
+  private _getLinePrefix(): string {
+    return this.linesWrittenn === 0 ? `[${EOL}` : `,${EOL}`;
   }
 }
