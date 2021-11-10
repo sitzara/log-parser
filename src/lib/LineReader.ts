@@ -2,16 +2,32 @@ import fs from 'fs';
 import readline from 'readline';
 import { Reader, Transformer } from './interfaces';
 
+export const onError = () => {
+  console.log('Error occurred reading input file');
+  process.exit(1);
+};
+
 export default class LineReader implements Reader {
   private rl: readline.Interface;
 
   constructor(input: string) {
-    if (!fs.existsSync(input)) {
-      throw new Error('Input file does not exist');
+    const exist = fs.existsSync(input);
+    if (!exist) {
+      console.log('Input file does not exist');
+      process.exit(1);
     }
 
+    if (exist && fs.lstatSync(input).isDirectory()) {
+      console.log('Input can\'t be a directory');
+      process.exit(1);
+    }
+
+    const rs = fs.createReadStream(input);
+
+    rs.on('error', onError);
+
     this.rl = readline.createInterface({
-      input: fs.createReadStream(input),
+      input: rs,
       terminal: false,
       crlfDelay: Infinity
     });

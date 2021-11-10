@@ -2,13 +2,11 @@
   "compilerOptions": {
     "target": "ES2015",
     "module": "commonjs",
-    // "module": "amd",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    // "outFile": "./parser.js",
+    "outDir": "./",
     "rootDir": "./src"
   },
   "exclude": [

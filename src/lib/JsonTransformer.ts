@@ -16,15 +16,14 @@ export default class JsonTransformer implements Transformer {
       return;
     }
 
-    const line = new LogLine(str);
-    const data = line.format();
+    const data = new LogLine(str).format();
 
     if (!this._filter(data)) {
       return;
     }
 
     const jsonString = this._toString(data);
-    const prefix = this._getLinePrefix();
+    const prefix = this.linesWrittenn === 0 ? `[${EOL}` : `,${EOL}`;
     this.writer.write(`${prefix}\t${jsonString}`);
 
     this.linesWrittenn++;
@@ -50,9 +49,5 @@ export default class JsonTransformer implements Transformer {
 
   private _toString(data: FormattedLine): string {
     return JSON.stringify(data);
-  }
-
-  private _getLinePrefix(): string {
-    return this.linesWrittenn === 0 ? `[${EOL}` : `,${EOL}`;
   }
 }

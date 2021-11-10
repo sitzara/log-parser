@@ -3,3 +3,6 @@ dist
 
 app.log
 error.json
+
+lib
+parser.js

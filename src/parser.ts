@@ -13,9 +13,7 @@ const argv: Arguments = yargs(process.argv.slice(2)).options({
   output: { type: 'string', demandOption: true },
 }).parseSync();
 
-console.log('argv', argv.input, argv.output);
-
-const inputPath = path.resolve(__dirname, '../', argv.input);
-const outputPath = path.resolve(__dirname, '../', argv.output);
+const inputPath = path.resolve(__dirname, argv.input);
+const outputPath = path.resolve(__dirname, argv.output);
 
 new Parser(inputPath, outputPath).run();

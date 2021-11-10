@@ -17,31 +17,22 @@ jest.mock('./LogLine', () => {
   });
 });
 
-describe('pipe', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('should return this', () => {
-    const writer = new LineWriter('');
-    const transformer = new JsonTransformer();
-    expect(transformer.pipe(writer)).toBe(transformer);
-  });
-});
-
 describe('JsonTransformer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('should do nothing if writer is not piped', () => {
-    const transformer = new JsonTransformer();
-    transformer.transform('');
-    expect(writeMock).not.toHaveBeenCalled();
+  describe('pipe', () => {
+    test('should return this', () => {
+      const writer = new LineWriter('');
+      const transformer = new JsonTransformer();
+      expect(transformer.pipe(writer)).toBe(transformer);
+    });
   });
 
   test('should do nothing if writer is not piped', () => {
     const transformer = new JsonTransformer();
+    transformer.transform('');
     transformer.end();
     expect(writeMock).not.toHaveBeenCalled();
   });
@@ -91,6 +82,18 @@ describe('JsonTransformer', () => {
 
     expect(writeMock.mock.calls[0][0]).toBe(`[${EOL}\t${jsonErrorString}`);
     expect(writeMock.mock.calls[1][0]).toBe(`${EOL}]${EOL}`);
+    expect(endMock).toHaveBeenCalledWith();
+    expect(endMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('should not write if no lines were transformed', () => {
+    const writer = new LineWriter('');
+    const transformer = new JsonTransformer();
+    transformer.pipe(writer);
+
+    transformer.end();
+
+    expect(writeMock).not.toHaveBeenCalled();
     expect(endMock).toHaveBeenCalledWith();
     expect(endMock).toHaveBeenCalledTimes(1);
   });

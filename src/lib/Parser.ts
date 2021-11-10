@@ -11,6 +11,8 @@ export default class Parser {
     this.reader = new LineReader(input);
     this.transformer = new JsonTransformer();
     this.writer = new LineWriter(output);
+
+    console.log(`Parsing logs from "${input}" to "${output}"`);
   }
 
   public run() {
